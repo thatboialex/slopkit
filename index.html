@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" manifest="cache.appcache">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -59,9 +59,7 @@
     border-color: rgba(123,255,162,.55); box-shadow: 0 12px 30px rgba(24,142,67,.26);
     pointer-events: none;
   }
-  #status { min-height: 1.5em; color: #9fb1c3; font-size: 18px; text-align: center; }
-  #status.ready { color: #65d98a; }
-  #status.error { color: #ff7b87; }
+  #status { min-height: 1.5em; color: #9fb1c3; font-size: 18px; }
   @media (max-width: 650px) {
     #actions { width: 82vw; }
     .action { width: 100%; }
@@ -77,88 +75,21 @@
        href="slopkit/poops.html?go=1&amp;auto=1&amp;trigger=netcontrol&amp;payload=1&amp;v=17"
        tabindex="0">RUN</a>
   </div>
-  <div id="status">Preparing offline cache&hellip;</div>
+  <div id="status"></div>
 </div>
 
-<script>(function () {
-    var status = document.getElementById("status");
-    var appCacheReady = false;
-    var serviceWorkerReady = false;
+<script>try {
+    var q = new URLSearchParams(location.search);
+    var start = document.getElementById("start");
+    start.focus();
+} catch (e) {}
 
-    function show(message, kind) {
-        if (!status) return;
-        status.textContent = message;
-        status.className = kind || "";
-    }
-
-    function ready(source) {
-        if (source === "appcache") appCacheReady = true;
-        if (source === "serviceworker") serviceWorkerReady = true;
-        show("Offline cache ready", "ready");
-    }
-
-    try {
-        var start = document.getElementById("start");
-        start.focus();
-    } catch (e) {}
-
-    try {
-        document.getElementById("cat").addEventListener("error", function () {
-            this.style.display = "none";
-        });
-    } catch (e) {}
-
-    try {
-        if (window.applicationCache) {
-            var cache = window.applicationCache;
-            cache.addEventListener("checking", function () {
-                show("Checking offline cache…");
-            });
-            cache.addEventListener("downloading", function () {
-                show("Downloading offline cache…");
-            });
-            cache.addEventListener("progress", function (event) {
-                if (event && event.total)
-                    show("Caching files " + event.loaded + " / " + event.total + "…");
-            });
-            cache.addEventListener("cached", function () { ready("appcache"); });
-            cache.addEventListener("noupdate", function () { ready("appcache"); });
-            cache.addEventListener("updateready", function () {
-                try { cache.swapCache(); } catch (e) {}
-                ready("appcache");
-            });
-            cache.addEventListener("error", function () {
-                if (!serviceWorkerReady)
-                    show(navigator.onLine === false ? "Offline cache unavailable" : "Cache download failed", "error");
-            });
-        }
-    } catch (e) {}
-
-    try {
-        if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("service-worker.js").then(function () {
-                return navigator.serviceWorker.ready;
-            }).then(function () {
-                ready("serviceworker");
-            }).catch(function () {
-                if (!appCacheReady && !window.applicationCache)
-                    show("Offline caching is not supported by this browser", "error");
-            });
-        } else if (!window.applicationCache) {
-            show("Offline caching is not supported by this browser", "error");
-        }
-    } catch (e) {
-        if (!appCacheReady && !window.applicationCache)
-            show("Offline caching is not supported by this browser", "error");
-    }
-
-    window.addEventListener("offline", function () {
-        show("Offline — using cached files", "ready");
+try {
+    document.getElementById("cat").addEventListener("error", function () {
+        this.style.display = "none";
     });
-    window.addEventListener("online", function () {
-        if (appCacheReady || serviceWorkerReady) ready(appCacheReady ? "appcache" : "serviceworker");
-    });
-})();</script>
+} catch (e) {}
+</script>
 
 </body>
 </html>
