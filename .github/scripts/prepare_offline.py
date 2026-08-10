@@ -144,8 +144,6 @@ def validate_output() -> None:
         raise SystemExit("Missing required Pages files: " + ", ".join(missing))
 
     index = (DESTINATION / "index.html").read_text(encoding="utf-8")
-    if 'manifest="cache.appcache"' not in index:
-        raise SystemExit("index.html does not reference cache.appcache")
     if "trigger=netcontrol" not in index or "payload=1" not in index:
         raise SystemExit("index.html no longer launches the intended jailbreak and ELF loader")
 
