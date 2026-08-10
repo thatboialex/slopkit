@@ -8,6 +8,7 @@ import os
 import posixpath
 import re
 import shutil
+from html import unescape
 from pathlib import Path
 from urllib.parse import quote, urlsplit
 
@@ -100,7 +101,7 @@ def query_variants() -> set[str]:
         text = source_file.read_text(encoding="utf-8", errors="ignore")
         source_dir = source_file.relative_to(DESTINATION).parent.as_posix()
         for match in ASSET_REFERENCE.finditer(text):
-            raw_url = match.group("url")
+            raw_url = unescape(match.group("url"))
             parsed = urlsplit(raw_url)
             if not parsed.query or parsed.scheme or parsed.netloc or parsed.path.startswith("/"):
                 continue
